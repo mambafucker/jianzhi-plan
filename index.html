@@ -6,6 +6,10 @@
 <meta name="theme-color" content="#0f766e">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="照做就行的减脂打卡：今日日程、体重曲线、训练动作、云端同步">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
 <title>减脂打卡</title>
 <style>
 :root{
@@ -850,6 +854,7 @@ if(!DEMO&&QS.get('t')&&QS.get('g')){
 render();
 notifyOpen();
 if(cloudOn()&&!DEMO)cloudPull();
+if('serviceWorker' in navigator&&location.protocol==='https:'){navigator.serviceWorker.register('sw.js').catch(function(){})}
 </script>
 </body>
 </html>
