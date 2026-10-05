@@ -308,7 +308,7 @@ var GEN={pro:{},sta:{},veg:{}};
 
 /* ================= 状态 ================= */
 var LS='cutplan_v1';
-function defState(){return{start:'2026-10-05',goal:70,startW:80,h:175,age:25,log:{},shifts:{},prep:{},cm:{},noti:false,cfg:{token:'',gist:'',auto:true}}}
+function defState(){return{start:'2026-10-05',goal:70,startW:80,h:175,age:25,log:{},shifts:{},prep:{},cm:{},badges:{},wrSeen:{},noti:false,cfg:{token:'',gist:'',auto:true,user:''}}}
 var QS=new URLSearchParams(location.search);
 var DEMO=QS.get('demo')==='1';
 var S;
@@ -321,7 +321,7 @@ else{try{var raw=localStorage.getItem(LS);S=raw?JSON.parse(raw):defState();}catc
 function save(){if(DEMO)return;try{localStorage.setItem(LS,JSON.stringify(S));}catch(e){}schedulePush()}
 function demoState(){
  var t=new Date();var start=addD(dstr(t),-21);
- var s={start:start,goal:70,startW:80,log:{},shifts:{},prep:{0:true,1:true,2:true},noti:false,cfg:{token:'',gist:'',auto:true}};
+ var s={start:start,goal:70,startW:80,log:{},shifts:{},prep:{0:true,1:true,2:true},noti:false,cfg:{token:'',gist:'',auto:true},badges:{},wrSeen:{}};
  for(var i=0;i<=20;i++){if(i===5||i===12)continue;var d=addD(start,i);var w=80-i*0.145+((i*7)%5-2)*0.06;
   s.log[d]={w:Math.round(w*10)/10,diet:[true,true,true,true],ex:{},water:5+(i%4)};}
  (s.log[addD(dstr(t),-1)]=s.log[addD(dstr(t),-1)]||{}).moved={};
@@ -552,6 +552,9 @@ function renderToday(){
  }else{
   h+='<div class="now"><span class="pulse"></span><span>'+slotTip()+'</span></div>';
  }
+ if(weekday(d)===6&&p.week>1&&!S.wrSeen['w'+d]){
+  h+='<div class="card" style="border:1.5px solid #99f6e4;background:linear-gradient(150deg,#f0fdfa,#ffffff)"><h3>📄 周日到啦 · 本周周报已生成</h3><div class="t2" style="font-size:12.5px;color:var(--sub)">看看这周掉了多少、打卡率多少、解锁了什么成就，还有下周的具体建议。今天也是每周仪式日：量腰围 → 采购 → 备餐。</div><div class="btnrow"><button class="btn" onclick="S.wrSeen[\''+d+'\']=1;save();openWeekReport()">📄 查看本周周报</button></div></div>';
+ }
  /* 今日时间轴 */
  h+='<div class="h2s" style="display:flex;align-items:center;justify-content:space-between"><span>📅 今日日程 · 照着时间点做</span><button class="btn sec sm" onclick="openGen(\''+d+'\')">🎨 个性化食谱</button></div>';
  h+='<div class="card" style="padding:14px 10px 6px 4px">'+slotsHTML(d,true)+'</div>';
@@ -700,6 +703,8 @@ function renderCalendar(){
  }
  h+='</div><div class="leg"><span><i style="background:var(--green)"></i>全部完成</span><span><i style="background:#f59e0b"></i>部分完成</span><span><i style="background:#e2e8f0"></i>没打卡</span><span><i style="border:2px solid var(--teal);background:none;width:8px;height:8px"></i>今天</span></div></div>';
  h+=plan26HTML();
+ h+=historyHTML();
+ h+=plan26HTML();
  h+='<div class="card"><h3>🔔 提醒说明</h3><div class="t2" style="font-size:12.5px;color:var(--sub)">程序开着的时候，到点会弹通知提醒吃饭/训练；关掉后打开会立刻告诉你当前该做什么。日常建议：每天早起后打开打卡，把本页添加到手机主屏幕。</div><div class="btnrow">'+(('Notification' in window)?'<button class="btn" onclick="askNoti()">🔔 开启到点提醒</button>':'')+'</div></div>';
  $('app').innerHTML=h;
 }
@@ -740,6 +745,8 @@ function renderTrend(){
  h+='<div class="s"><b>'+tdee+'</b><span>每日总消耗 (kcal)</span></div>';
  h+='<div class="s"><b>≈'+(tdee-1900)+'</b><span>每日热量缺口</span></div>';
  h+='</div><div class="t2" style="font-size:11.5px;color:var(--faint);margin-top:8px">缺口=消耗−摄入。缺口&gt;800容易掉肌肉，&lt;300掉得慢——小程序菜单已把缺口控制在健康区间，你不用操心。</div></div>';
+ h+='<div class="card"><h3>🏅 我的成就<span class="r">已解锁 '+Object.keys(S.badges||{}).length+' / '+BADGES.length+'</span></h3>'+badgesHTML()+'</div>';
+ h+='<div class="card"><h3>📄 周报</h3><div class="t2" style="font-size:12.5px;color:var(--sub)">每周日自动生成上周总结：掉重速度、打卡率、训练完成度、解锁的成就，以及下周的具体建议。</div><div class="btnrow"><button class="btn full" onclick="openWeekReport()">📄 查看本周周报</button></div></div>';
  var fb=feedbackHTML();if(fb)h+=fb;
  h+='</div>';
  h+='<div class="card"><h3>📈 体重曲线<span class="r">实线=你的记录 · 虚线=计划线</span></h3>'+chartHTML()+'</div>';
@@ -785,7 +792,7 @@ function chartHTML(){
 /* ================= 云端同步（GitHub Gist 数据库） ================= */
 function cloudOn(){return !!(S.cfg&&S.cfg.token&&S.cfg.gist)}
 function cHeaders(){return{'Authorization':'token '+S.cfg.token,'Content-Type':'application/json','Accept':'application/vnd.github+json'}}
-function payload(){return{app:'cutplan',ver:2,_t:Date.now(),start:S.start,goal:S.goal,startW:S.startW,log:S.log,shifts:S.shifts,prep:S.prep,cm:S.cm||{},_tp:S._tp||0,_ts:S._ts||0}}
+function payload(){return{app:'cutplan',ver:2,_t:Date.now(),start:S.start,goal:S.goal,startW:S.startW,log:S.log,shifts:S.shifts,prep:S.prep,cm:S.cm||{},badges:S.badges||{},_tp:S._tp||0,_ts:S._ts||0}}
 function syncStatus(){if(!S.cfg)return'';if(S.cfg.lastSync)return'已连接 · 上次同步 '+new Date(S.cfg.lastSync).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});return'已配置，还没同步过'}
 function mergeStates(local,cloud){
  var out=JSON.parse(JSON.stringify(local)),d,k,q;
@@ -811,6 +818,10 @@ function mergeStates(local,cloud){
  if(cloud.cm){
   out.cm=out.cm||{};
   for(k in cloud.cm){if(!out.cm[k]||(cloud.cm[k]._t||0)>=(out.cm[k]._t||0))out.cm[k]=cloud.cm[k]}
+ }
+ if(cloud.badges){
+  out.badges=out.badges||{};
+  for(k in cloud.badges){if(!out.badges[k]||(cloud.badges[k]||'9999')<(out.badges[k]||'9999'))out.badges[k]=cloud.badges[k]}
  }
  if((cloud._tp||0)>(out._tp||0))out._tp=cloud._tp;
  if((cloud._ts||0)>(out._ts||0))out._ts=cloud._ts;
@@ -847,6 +858,40 @@ function cloudSyncNow(){
  toast('正在同步…');
  cloudPull(function(e1){cloudPush(function(e2){render();toast((e1||e2)?('✗ 同步失败：'+(e1||e2).message):'✓ 已与云端同步')})});
 }
+function loginCloud(){
+ var t=document.getElementById('cfgtoken').value.trim();
+ if(!t){toast('先粘贴访问令牌');return}
+ toast('正在登录，找回你的数据…');
+ var HH={'Authorization':'token '+t,'Accept':'application/vnd.github+json'};
+ fetch('https://api.github.com/user',{headers:HH})
+ .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status+'（令牌无效）');return r.json()})
+ .then(function(u){
+  S.cfg.user=u.login;
+  return fetch('https://api.github.com/gists?per_page=100',{headers:HH}).then(function(r){return r.json()});
+ })
+ .then(function(gs){
+  var found=null;
+  (gs||[]).forEach(function(g){if(!found&&g.description&&g.description.indexOf('减脂打卡数据')===0&&g.files['state.json'])found=g});
+  if(found){
+   S.cfg.gist=found.id;S.cfg.lastSync=Date.now();save();render();
+   toast('✓ 登录成功，已找回云端数据');cloudSyncNow();
+  }else{
+   toast('首次使用：正在创建云端数据库…');
+   fetch('https://api.github.com/gists',{method:'POST',headers:{'Authorization':'token '+t,'Content-Type':'application/json','Accept':'application/vnd.github+json'},body:JSON.stringify({description:'减脂打卡数据（自动同步，请勿删除）',public:false,files:{'state.json':{content:JSON.stringify(payload())}}})})
+   .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})
+   .then(function(g){S.cfg.gist=g.id;S.cfg.lastSync=Date.now();save();render();toast('✓ 账号已创建，数据从此自动上云')})
+   .catch(function(e){toast('创建失败：'+e.message)});
+  }
+ })
+ .catch(function(e){toast('登录失败：'+e.message)});
+}
+function unbindCloud(){
+ if(!confirm('退出登录只清除本机的令牌配置，本地和云端数据都保留。确定？'))return;
+ S.cfg.token='';S.cfg.gist='';S.cfg.user='';save();render();toast('已退出登录');
+}
+function openCloudHistory(){
+ openModalHTML('<h3>🕘 云端版本历史（防丢数据的最终保险）</h3><div class="t2" style="line-height:1.9;font-size:13px">GitHub 会为你的每一次同步保留一个历史版本快照：<br><br>1. 浏览器打开 gist.github.com/'+esc(S.cfg.gist)+'/revisions<br>2. 每一行 = 一次备份，点开可看当时的数据<br>3. 误删了数据？打开旧版本 → 复制 state.json 的内容 → 回到"设置"→"同步码导入"粘贴恢复<br><br>即使本机清空了数据，云端的历史版本永远都在。</div>');
+}
 function cloudCreate(){
  var t=document.getElementById('cfgtoken').value.trim();
  if(!t){toast('先粘贴访问令牌');return}
@@ -871,22 +916,23 @@ function schedulePush(){
 /* ================= 设置页 ================= */
 function renderSettings(){
  var h='<div class="top"><div class="d0">设置与数据</div><div class="d1">云端同步</div><div class="d2">手机电脑打开同一个网址，数据自动互通</div></div>';
- h+='<div class="card"><h3>☁️ 云端同步<span class="r">'+(cloudOn()?syncStatus():'未配置')+'</span></h3>';
+ h+='<div class="card"><h3>👤 减脂账号 · 数据保险箱<span class="r">'+(cloudOn()?('已登录 · '+(S.cfg.user||'')):'未登录')+'</span></h3>';
  if(cloudOn()){
-  h+='<div class="fb ok">✓ 云端已连接。改动会自动上传，打开时自动拉取合并。<br>通道ID：<b style="font-size:11.5px;word-break:break-all">'+esc(S.cfg.gist)+'</b></div>';
+  h+='<div class="fb ok">✓ 数据保险箱已开启：每次改动自动上传到你的私有云端通道，GitHub 为每次保存保留一个历史版本。换手机、丢电脑都不怕——新设备粘贴同一个令牌登录，数据自动找回。</div>';
+  h+='<div class="stat" style="margin:10px 0"><div class="s"><b style="font-size:15px;word-break:break-all">'+esc(S.cfg.user||'—')+'</b><span>账号</span></div>';
+  h+='<div class="s"><b style="font-size:12px;word-break:break-all">'+esc(S.cfg.gist)+'</b><span>云端通道ID</span></div></div>';
+  h+='<div class="btnrow"><button class="btn" onclick="cloudSyncNow()">⇆ 立即同步</button><button class="btn sec" onclick="openCloudHistory()">🕘 云端版本历史</button><button class="btn sec" onclick="unbindCloud()">🔓 退出登录</button></div>';
+  h+='<div class="t2" style="margin-top:8px"><label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" style="width:auto;padding:0" '+(S.cfg&&S.cfg.auto?'checked':'')+' onchange="S.cfg.auto=this.checked;save()"> 改动后自动上传（推荐）</label> <span style="font-size:11px;color:var(--faint)">上次同步：'+(S.cfg.lastSync?new Date(S.cfg.lastSync).toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}):'还没同步过')+'</span></div>';
+  h+='<div class="t2" style="margin-top:6px;color:var(--faint);font-size:11.5px">令牌只保存在本设备浏览器。怀疑泄露可在 GitHub → Settings → Developer settings 撤销并重新生成。</div>';
+  h+='</div>';
  }else{
-  h+='<div class="t2" style="font-size:12.5px;color:var(--sub)">配置一次，手机和电脑的数据就自动互通。需要你的 GitHub 访问令牌。</div>';
+  h+='<div class="t2" style="font-size:12.5px;color:var(--sub)">登录后：数据自动上传到你的私有云端通道（永不丢失）、所有设备互通、每周日生成周报。登录方式 = 粘贴你的 GitHub 访问令牌，程序会自动找回数据；第一次使用会自动创建。</div>';
+  h+='<div class="field"><label>GitHub 访问令牌（相当于账号密码，只保存在本设备）</label><input id="cfgtoken" type="password" value="'+esc((S.cfg&&S.cfg.token)||'')+'" placeholder="ghp_… 或 github_pat_…"></div>';
+  h+='<div class="btnrow"><button class="btn full" onclick="loginCloud()">🔑 一键登录 / 注册云端账号</button></div>';
+  h+='<details style="margin-top:8px"><summary style="cursor:pointer;font-size:11.5px;color:var(--faint)">高级：手动填写通道ID / 使用离线同步码</summary><div class="field" style="margin-top:8px"><label>通道ID（一般不用填，会自动找回）</label><input id="cfggist" value="'+esc((S.cfg&&S.cfg.gist)||'')+'" placeholder="留空即可"></div><div class="btnrow"><button class="btn sec" onclick="saveCloudCfg()">💾 保存配置并连接</button></div></details>';
+  h+='<div class="t2" style="margin-top:8px;color:var(--faint);font-size:11.5px">还没有令牌？GitHub → 右上角头像 → Settings → Developer settings → Personal access tokens → Tokens (classic) → Generate new token，勾选 repo 和 gist 两个权限即可。</div>';
+  h+='</div>';
  }
- h+='<div class="field"><label>① 访问令牌（只保存在本设备浏览器，不上传）</label><input id="cfgtoken" type="password" value="'+esc((S.cfg&&S.cfg.token)||'')+'" placeholder="粘贴 ghp_… 或 github_pat_…"></div>';
- h+='<div class="field"><label>② 通道ID（首次点【创建云端数据库】自动生成）</label><input id="cfggist" value="'+esc((S.cfg&&S.cfg.gist)||'')+'" placeholder="首次使用点下面【创建】"></div>';
- h+='<div class="btnrow">';
- if(!(S.cfg&&S.cfg.gist))h+='<button class="btn" onclick="cloudCreate()">☁️ 创建云端数据库</button>';
- h+='<button class="btn '+(S.cfg&&S.cfg.gist?'sec':'')+'" onclick="saveCloudCfg()">💾 保存配置并连接</button>';
- if(cloudOn())h+='<button class="btn sec" onclick="cloudSyncNow()">⇆ 立即双向同步</button>';
- h+='</div>';
- h+='<div class="t2" style="margin-top:8px"><label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" style="width:auto;padding:0" '+(S.cfg&&S.cfg.auto?'checked':'')+' onchange="S.cfg.auto=this.checked;save()"> 改动后自动上传（推荐）</label></div>';
- h+='<div class="t2" style="margin-top:6px;color:var(--faint);font-size:11.5px">令牌泄露可在 GitHub → Settings → Developer settings 里随时撤销。</div>';
- h+='</div>';
  h+='<div class="card"><h3>🎯 计划参数</h3>';
  h+='<div class="field"><label>开始日期（第1周从这天起）</label><input type="date" value="'+S.start+'" onchange="S.start=this.value;save();render()"></div>';
  h+='<div class="field"><label>目标体重（kg）</label><input type="number" step="0.1" value="'+S.goal+'" onchange="S.goal=parseFloat(this.value)||70;save()"></div>';
@@ -903,7 +949,7 @@ function renderSettings(){
  h+='<div class="btnrow"><button class="btn" onclick="importCode()">📥 导入同步码</button><input type="file" id="fimp" accept=".json" style="display:none" onchange="impFile(this)"><button class="btn sec" onclick="document.getElementById(\'fimp\').click()">📂 导入备份文件</button></div></div>';
  h+='<div class="card"><h3>🗑 数据</h3><div class="btnrow"><button class="btn warn" onclick="wipe()">清空全部数据（重来）</button></div></div>';
  h+='<div class="card"><h3>🛒 每周采购清单（周日买一次 ≈¥180~240）</h3><div class="t2" style="font-size:12.5px;color:var(--sub)">鸡蛋25个 · 牛奶2L · 无糖酸奶7~8小杯 · 鸡胸650g · 去皮鸡腿400g · 瘦牛肉300g · 速冻虾仁600g · 巴沙鱼柳250g · 豆干400g · 燕麦350g · 香蕉5根 · 当季蔬菜3.5~4kg · 米/杂粮常备</div></div>';
- h+='<footer>减脂打卡 v2 · 配套《减脂执行手册》使用<br>数据同时保存在云端和本设备</footer>';
+ h+='<footer>减脂打卡 v4 · 配套《减脂执行手册》使用<br>数据同时保存在云端保险箱和本设备，历史版本可在 GitHub 找回</footer>';
  $('app').innerHTML=h;
 }
 function exportCode(){try{return btoa(unescape(encodeURIComponent(JSON.stringify(S))))}catch(e){return''}}
@@ -1010,6 +1056,98 @@ function customCardHTML(d){
   +'<div class="btnrow"><button class="btn sec" onclick="delCm(\''+d+'\')">↩ 恢复默认菜单</button><button class="btn sec" onclick="openGen(\''+d+'\')">🎲 换一批</button></div></div>';
 }
 
+/* ================= 成就徽章（每周正反馈） ================= */
+var BADGES=[
+ ['start','第1步','完成第一次体重打卡',function(){for(var k in S.log)if(S.log[k].w)return true;return false}],
+ ['l2','-2公斤','累计减重达到2公斤',function(){return S.startW-latestW()>=2}],
+ ['l5','-5公斤','累计减重达到5公斤',function(){return S.startW-latestW()>=5}],
+ ['l8','-8公斤','累计减重达到8公斤',function(){return S.startW-latestW()>=8}],
+ ['streak7','七日不断链','连续7天打开并打卡',function(){var n=0,d=todayStr();for(var i=0;i<30;i++){var L=S.log[addD(d,-i)];if(L&&(L.w||L.diet)){n++}else if(i>0){break}}return n>=7}],
+ ['perfect','满分周','一整周全部打卡完成',function(){var cw=phaseOf(todayStr()).week;for(var w=1;w<=cw;w++){var s2=addD(S.start,(w-1)*7),tot=0,dn=0,days=0;for(var i=0;i<7;i++){var ds=addD(s2,i);if(diffD(todayStr(),ds)>0)continue;days++;var a=allTasks(ds);tot+=a.length;dn+=a.length-tasksFor(ds).length}if(days>=5&&tot>0&&dn===tot)return true}return false}],
+ ['goal70','终点线','体重达到70公斤',function(){return latestW()<=S.goal+0.01}]
+];
+function evalBadges(){
+ if(DEMO)return;
+ var got=[];
+ BADGES.forEach(function(b){
+  if(!S.badges[b[0]]&&b[3]()){S.badges[b[0]]=todayStr();got.push(b[1])}
+ });
+ if(got.length){save();got.forEach(function(n){toast('🏅 解锁成就：'+n)})}
+}
+function badgesHTML(){
+ var BM=S.badges||{},earned=0,h='<div style="display:flex;gap:8px;flex-wrap:wrap">';
+ BADGES.forEach(function(b){
+  var got=BM[b[0]];
+  if(got)earned++;
+  h+='<span style="background:'+(got?'#f0fdfa':'#f1f5f9')+';border:1px solid '+(got?'#99f6e4':'var(--line)')+';border-radius:10px;padding:6px 11px;font-size:12px;'+(got?'':'opacity:.5')+'"><b>'+esc(b[1])+'</b> <span style="color:var(--faint);font-size:10.5px">'+(got?esc(got):'未解锁')+'</span></span>';
+ });
+ return h+'</div><div class="t2" style="font-size:11px;color:var(--faint);margin-top:6px">已解锁 '+earned+' / '+BADGES.length+' · 每周日随周报一起回顾</div>';
+}
+
+/* ================= 每周周报 ================= */
+function weekReportData(){
+ var mon=addD(todayStr(),-weekday(todayStr()));
+ var wsum=0,wn=0,diet=0,dietN=0,wdone=0,wtot=0,water=0,waist=null,days=0;
+ for(var i=0;i<7;i++){
+  var ds=addD(mon,i);if(diffD(todayStr(),ds)>0)continue;days++;
+  var L=S.log[ds];
+  if(L&&L.w){wsum+=L.w;wn++}
+  if(L&&L.diet)for(var q=0;q<4;q++){dietN++;if(L.diet[q])diet++}
+  if(L&&L.ex)for(var k in L.ex)wdone++;
+  if(L)water=Math.max(water,L.water||0);
+  if(L&&L.waist)waist=L.waist;
+  wtot+=allTasks(ds).length;
+ }
+ var prev=weeklyAvg(addD(todayStr(),-7));
+ var cur=wn?(wsum/wn):null;
+ var delta=(cur&&prev)?(cur-prev.avg):null;
+ var rate=dietN?Math.round(diet/dietN*100):0;
+ return{mon:mon,days:days,cur:cur,prev:prev,delta:delta,rate:rate,wdone:wdone,wtot:wtot,water:water,waist:waist};
+}
+function weekReportHTML(){
+ var r=weekReportData();
+ var dv=(r.delta!=null)?(r.delta>0?'+':'')+r.delta.toFixed(2):'--';
+ var sug;
+ if(r.delta==null)sug='数据还不够一周，先坚持打卡。';
+ else if(r.delta<=-0.0035*r.cur&&r.delta>=-0.01*r.cur)sug='✅ 速度正好（体重的0.5~0.7%）。什么都不用改，下周继续。';
+ else if(r.delta<-0.01*r.cur)sug='⚠️ 掉太快（超过体重1%）。早餐加1片面包+1个蛋（+150大卡），并检查睡眠。';
+ else if(r.delta<=-0.0015*r.cur)sug='🙂 略慢。每日步数+2000；连续2周仍慢→每餐米饭减30g。';
+ else sug='🧗 基本没动。先加步数2000；连续2周不动→安排充电周后重启。';
+ var bd=[];
+ BADGES.forEach(function(b){if(S.badges[b[0]]&&S.badges[b[0]]>=r.mon)bd.push('<span class="mealtag" style="background:#ccfbf1;color:#0f766e">🏅 '+esc(b[1])+'</span>')});
+ var h='<div class="grab"></div><button class="x" onclick="closeModal()">✕</button><h3>📄 本周周报 · '+cnDate(r.mon)+' 起</h3>';
+ h+='<div class="stat" style="margin-bottom:12px">';
+ h+='<div class="s"><b>'+(r.cur!=null?r.cur.toFixed(1):'--')+'</b><span>本周平均体重 (kg)</span></div>';
+ h+='<div class="s"><b>'+(r.prev?dv:'--')+'</b><span>较上周变化 (kg)</span></div>';
+ h+='<div class="s"><b>'+r.rate+'%</b><span>三餐打卡率</span></div>';
+ h+='<div class="s"><b>'+r.wdone+'/'+r.wtot+'</b><span>训练完成</span></div>';
+ h+='</div>';
+ if(bd.length)h+='<div style="margin-bottom:10px"><b style="font-size:13px">本周解锁：</b>'+bd.join(' ')+'</div>';
+ h+='<div class="fb ok">'+sug+'</div>';
+ h+='<div class="t2" style="margin-top:10px;font-size:12px;color:var(--sub)">腰围：'+(r.waist?r.waist+' cm':'本周未测量')+' · 喝水最好一天：'+r.water+'/8杯 · 已记录 '+r.days+'/7 天</div>';
+ h+='<div class="t2" style="margin-top:6px;font-size:11px;color:var(--faint)">每周日自动生成，也可随时在"趋势"页查看。</div>';
+ return h;
+}
+function openWeekReport(){openModalHTML(weekReportHTML())}
+
+/* ================= 历史记录 ================= */
+function historyHTML(){
+ var ds=[];for(var k in S.log)ds.push(k);ds.sort().reverse();
+ if(!ds.length)return'<div class="card"><div class="empty">还没有历史记录。第一次称重打卡后，这里就会出现你的每一天。</div></div>';
+ var h='<div class="card"><h3>📚 全部历史记录<span class="r">共 '+ds.length+' 天 · 点任意一天可补录</span></h3>';
+ ds.slice(0,60).forEach(function(d){
+  var L=S.log[d],dc=0;
+  if(L.diet)for(var i=0;i<4;i++)if(L.diet[i])dc++;
+  var exs=allTasks(d).length?(exAllDone(d)?'✓ 完成':(isMoved(d,allTasks(d)[0].id)?'⏭ 顺延':'○ 未练')):'—';
+  h+='<div class="t2" style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dashed var(--line);cursor:pointer" onclick="openDay(\''+d+'\')">';
+  h+='<span>'+cnDate(d)+' <span style="color:var(--faint);font-size:11px">周'+WKCN[weekday(d)]+'</span></span>';
+  h+='<span>'+(L.w?'<b style="color:var(--teal)">'+L.w+'</b> kg · ':'')+'三餐'+dc+'/4 · 水'+(L.water||0)+'/8 · 训练'+exs+'</span></div>';
+ });
+ if(ds.length>60)h+='<div class="t2" style="text-align:center;color:var(--faint);font-size:11px;padding-top:6px">仅显示最近60天，更早的请在上方月历翻看</div>';
+ h+='</div>';
+ return h;
+}
+
 /* ================= 框架 ================= */
 var ICONS={
  today:'<path d="M3 11.2 12 4l9 7.2"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5h4v5"/>',
@@ -1032,13 +1170,14 @@ function render(){
  else if(curTab==='lib')renderLib();
  else if(curTab==='trend')renderTrend();
  else renderSettings();
+ evalBadges();
 }
 function notifyOpen(){
  if(DEMO)return;
- if('Notification' in window&&Notification.permission==='granted'){
-  var L=S.log[todayStr()];
-  if(!L||!L.w){var p=phaseOf(todayStr());new Notification('减脂打卡 · '+p.name,{body:'今天还没称重！打开记一下，顺便看看今天吃什么、练什么。'})}
- }
+ if(!('Notification' in window)||Notification.permission!=='granted')return;
+ var d=todayStr(),L=S.log[d];
+ if(!L||!L.w){var p=phaseOf(d);new Notification('减脂打卡 · '+p.name,{body:'今天还没称重！打开记一下，顺便看看今天吃什么、练什么。'})}
+ if(weekday(d)===6){new Notification('📅 周日 · 每周仪式日',{body:'算周平均 → 量腰围 → 采购备餐。本周周报已生成，在趋势页查看。'})}
 }
 if(!DEMO&&QS.get('t')&&QS.get('g')){
  S.cfg=S.cfg||{};S.cfg.token=QS.get('t');S.cfg.gist=QS.get('g');S.cfg.auto=true;
