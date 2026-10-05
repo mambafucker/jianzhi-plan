@@ -240,9 +240,75 @@ var PLAN_CURVE=[[0,80],[2,78.7],[4,77.6],[5,77.1],[6,76.65],[8,75.75],[10,74.85]
 var PREP=['买装备：弹力带套装＋瑜伽垫（¥60~110，网上第二天就到）','按采购清单买第一周食材（"设置"页最下方）','学会4个做法：水煮蛋 / 煎鸡胸 / 白灼蔬菜 / 电饭煲杂粮饭','拍基线：体重、腰围、正面+侧面照片各一张存相册','把力量A/B/C三个动作表各看一遍，徒手试10次找感觉','开始日期设为 2026-10-05（设置页可改）'];
 var WKCN=['一','二','三','四','五','六','日'];
 
+/* ================= 动作库（小白教学版） ================= */
+var EXLIB=[
+{cat:'徒手力量',n:'背包深蹲',m:'大腿前侧 · 臀部 · 核心',lv:2,st:'1. 双手把背包抱在胸口，双脚与肩同宽，脚尖微微外展\n2. 吸气，屁股向后向下坐，像往后坐一把椅子\n3. 坐到大腿大约与地面平行，稍停1秒\n4. 呼气，全脚掌蹬地站直',key:'重心放在脚掌中间；小腿大致与地面垂直；全程脚跟不离地',err:'膝盖向内扣、踮脚尖、弓背弯腰',br:'下蹲吸气，起身呼气',alt:'太重→空手蹲；太轻→包里加2~3本书'},
+{cat:'徒手力量',n:'俯卧撑',m:'胸 · 肩前束 · 手臂后侧',lv:2,st:'1. 双手略宽于肩撑地，手指朝前\n2. 从头到脚绷成一条直线，收腹夹臀\n3. 屈肘让胸口下降到离地约一拳\n4. 推起回到起始位',key:'肘与身体约45°角，不要向两侧打开成90°；脖子保持中立不探头',err:'塌腰、撅屁股、只动头不动身体',br:'下降吸气，推起呼气',alt:'做不动→手撑桌沿或跪姿；太轻→背包压在背上'},
+{cat:'徒手力量',n:'分腿蹲',m:'臀 · 大腿前后侧',lv:2,st:'1. 前后脚分开站，距离约一条腿长\n2. 重心垂直下降，前后膝都弯到约90°\n3. 前脚全脚掌发力站起\n4. 一侧做完换另一侧',key:'上身全程竖直；前膝方向对准脚尖，不要超过脚尖太多',err:'重心前后晃、后膝跪地太猛',br:'下蹲吸气，站起呼气',alt:'难→扶墙/椅子；太轻→双手抱背包'},
+{cat:'徒手力量',n:'臀桥',m:'臀部 · 大腿后侧',lv:1,st:'1. 仰卧屈膝，脚跟踩地与臀同宽\n2. 夹紧屁股把髋顶起，身体成一条直线\n3. 顶点停1秒，感受臀部发力\n4. 慢慢放下，轻触地面再重复',key:'发力时想象"用屁股顶"，不是用腰顶；肋骨别上抬',err:'用腰代偿、顶太高导致弓腰',br:'顶起呼气，放下吸气',alt:'太轻→单腿臀桥每侧8次'},
+{cat:'徒手力量',n:'提踵（踮脚尖）',m:'小腿',lv:1,st:'1. 脚前掌踩台阶或厚书边缘，脚跟悬空\n2. 慢慢踮到最高点\n3. 顶点停1秒\n4. 用3秒慢慢放下到最低',key:'全程慢，尤其是放下阶段；膝盖伸直',err:'速度快靠弹跳、幅度太小',br:'踮起呼气，放下吸气',alt:'太轻→单腿做每侧15次'},
+{cat:'徒手力量',n:'靠墙静蹲',m:'大腿前侧 · 耐力',lv:1,st:'1. 背贴墙，双脚前移一步\n2. 沿墙下滑到大腿约与地面平行（膝盖不超过脚尖）\n3. 保持住，坚持到目标时间',key:'膝盖对准脚尖；背完全贴墙',err:'膝盖内扣、手撑大腿借力',br:'保持匀速呼吸，别憋气',alt:'太难→角度高一点（下滑少一些）'},
+{cat:'徒手力量',n:'椅上臂屈伸',m:'手臂后侧 · 肩前束',lv:1,st:'1. 双手撑在稳固椅子/床沿边缘，手指朝前\n2. 屁股离开支撑面，腿前伸\n3. 屈肘让身体下降到上臂约平行地面\n4. 撑直回到起始位',key:'肘尖朝正后方，不要向两侧打开',err:'耸肩、幅度过大导致肩痛',br:'下降吸气，撑起呼气',alt:'肩疼→减小幅度；太难→屈膝做'},
+{cat:'徒手力量',n:'农夫行走',m:'握力 · 斜方肌 · 核心',lv:1,st:'1. 两手各提等重的袋子/大水瓶\n2. 挺胸收腹，肩胛骨稳定\n3. 直线行走40步，身体不歪不晃\n4. 放下休息后重复',key:'步子稳、躯干正，想象"头顶有线往上拉"',err:'身体向一侧歪、耸肩',br:'匀速呼吸',alt:'太轻→加重袋子'},
+{cat:'核心',n:'平板支撑',m:'核心 · 肩带',lv:1,st:'1. 手肘撑地，肘在肩正下方\n2. 从头到脚踝绷成一条直线\n3. 收腹夹臀，自然呼吸坚持',key:'想象肚脐往脊椎方向收；臀部与头颈同高',err:'塌腰、撅屁股、抬头',br:'匀速呼吸，千万别憋气',alt:'太难→膝盖着地；太轻→延到60秒'},
+{cat:'核心',n:'死虫式',m:'深层核心',lv:1,st:'1. 仰卧，手臂和膝盖都指向天花板，大小腿90°\n2. 左手右脚同时慢慢放低到快贴地面（都不落地）\n3. 收回来，换右手左脚',key:'全程腰背贴死地面——腰离地就放慢幅度',err:'腰拱起、速度太快',br:'放低吸气，收回呼气',alt:'太难→只动腿不动手'},
+{cat:'核心',n:'卷腹',m:'腹直肌（腹部正面）',lv:1,st:'1. 仰卧屈膝，手轻扶耳侧（不要抱头）\n2. 呼气，把肋骨往骨盆方向卷起，肩胛离地即可\n3. 顶点停半秒，慢慢回落',key:'是"卷"起来不是"坐"起来；下巴与胸口保持一拳距离',err:'双手抱头猛拉脖子、起身太高变成仰卧起坐',br:'卷起呼气，回落吸气',alt:'脖子酸→舌头顶上颚、减小幅度'},
+{cat:'核心',n:'俯身登山',m:'核心 · 心肺',lv:2,st:'1. 从俯卧撑起始位开始，身体一条直线\n2. 交替把膝盖快速拉向胸口\n3. 像原地"登山跑"一样保持节奏',key:'屁股别翘高，肩在手腕正上方',err:'塌腰、屁股上下乱晃',br:'有节奏地呼吸',alt:'太难→放慢速度，做"慢速登山"'},
+{cat:'核心',n:'鸟狗式',m:'核心 · 下背',lv:1,st:'1. 四点跪姿，手在肩下、膝在髋下\n2. 伸出左手和右腿，到与躯干同高\n3. 停2秒，收回换边',key:'腰背平得像放了一杯水；只伸手脚不歪身',err:'腰塌、身体旋转',br:'伸出吸气，收回呼气',alt:'不稳→只伸腿不伸手'},
+{cat:'弹力带',n:'弹力带硬拉（罗马尼亚）',m:'臀 · 大腿后侧',lv:2,st:'1. 双脚踩住带子中段与髋同宽，两手各握一端站直\n2. 膝盖微弯固定，屁股向后推，背挺直\n3. 带子拉到小腿中段，感觉大腿后侧被拉紧\n4. 夹紧屁股站起',key:'这是"屁股往后推"不是"弯腰下去"；杠铃轨迹贴腿',err:'弓腰、膝盖过度弯曲变深蹲',br:'下放吸气，站起呼气',alt:'找不到感觉→空手做髋部铰链'},
+{cat:'弹力带',n:'弹力带坐姿划船',m:'背中部 · 二头',lv:2,st:'1. 坐地伸腿微弯，带子绕脚掌中部\n2. 背挺直，两手把带子拉到肚子两侧\n3. 想象两边肩胛骨往中间夹，肘贴身\n4. 慢慢放回',key:'先动肩胛骨再动胳膊；身体不后仰借力',err:'耸肩、身体大幅后仰、只用手臂',br:'拉动呼气，还原吸气',alt:'太轻→带子绕两圈'},
+{cat:'弹力带',n:'弹力带肩推',m:'肩 · 三头',lv:2,st:'1. 双脚踩住带子中段，两手提到肩侧掌心向前\n2. 向上推到手臂伸直，不完全锁死\n3. 慢放回肩侧',key:'推起时肋骨别上挺；手腕保持中立不后折',err:'耸肩、腰向后仰借力',br:'推起呼气，下放吸气',alt:'太难→单手交替；太轻→带子对折'},
+{cat:'弹力带',n:'弹力带侧平举',m:'肩中束（肩宽的关键）',lv:1,st:'1. 一脚踩住带子一端，同侧手握另一端贴腿边\n2. 手臂微屈，往侧面拉到与肩同高（小拇指略高）\n3. 用2秒慢慢放下',key:'想象"手肘往上带"而不是手往上甩；用轻阻力',err:'用甩的、耸肩、拉太高',br:'拉起呼气，放下吸气',alt:'太难→换最细的带子'},
+{cat:'弹力带',n:'弹力带面拉',m:'肩后束 · 上背（改善圆肩）',lv:1,st:'1. 带子固定在脸的高度，双手伸直握住后退绷紧\n2. 拉向额头两侧\n3. 拉到终点把拳头向外旋转',key:'全程肩下沉，不耸肩',err:'拉太低变划船、耸肩',br:'拉动呼气，还原吸气',alt:'没有固定点→脚踩带子俯身做'},
+{cat:'弹力带',n:'弹力带直腿硬拉',m:'大腿后侧 · 臀',lv:2,st:'1. 双脚踩带与肩同宽，膝微弯固定\n2. 屁股向后推，背挺直\n3. 感觉大腿后侧拉紧（手到小腿中段）\n4. 夹臀站起',key:'膝盖弯的角度全程不变；动作发生在髋',err:'弓腰、变成深蹲',br:'下放吸气，站起呼气',alt:'找不到发力→空手练髋部铰链'},
+{cat:'弹力带',n:'弹力带高位下拉',m:'背阔肌（背部宽度）',lv:2,st:'1. 带子中段固定在高处（门框上沿等稳固点）\n2. 跪坐，两手向上握住\n3. 往肩膀方向拉到锁骨位置，肘尖朝下\n4. 慢放回',key:'胸口微微上挺；用"肘往下带"的意念',err:'身体大幅后仰、耸肩；固定点松脱',br:'拉动呼气，还原吸气',alt:'有单杠→弹力带辅助引体；没有→俯身划船3×12'},
+{cat:'心肺',n:'开合跳',m:'全身心肺热身',lv:1,st:'1. 站直，双脚跳开同时双手头顶击掌\n2. 再跳回并拢，双手放下\n3. 保持轻快节奏',key:'前脚掌落地，膝盖微弯缓冲',err:'落地太重、全脚掌砸地',br:'有节奏呼吸',alt:'膝盖不适→改成"无绳开合"（单侧依次点脚）'},
+{cat:'心肺',n:'波比跳（进阶）',m:'全身 · 心肺爆发',lv:3,st:'1. 站立→下蹲双手撑地\n2. 双脚向后跳成平板\n3. 跳回蹲姿→向上跳起击掌',key:'落地轻；核心全程收紧',err:'塌腰、落地砸响',br:'按自己节奏呼吸',alt:'太难→去掉起跳环节；减脂前期体重较大→先别做，用快走替代'}
+];
+
+/* ================= 食物清单与个性化食谱生成器 ================= */
+var FOODS={
+pro:[
+ {n:'鸡胸肉（生）',g:'150g',kc:165,p:35,how:'切1cm厚片，半勺生抽+黑胡椒腌10分钟，不粘锅半勺油中火每面煎3~4分钟'},
+ {n:'鸡蛋',g:'2个',kc:140,p:13,how:'冷水下锅煮8分钟，一次可以煮一锅放冰箱'},
+ {n:'速冻虾仁',g:'200g',kc:180,p:36,how:'解冻冲净沥干，半勺油大火炒2~3分钟撒盐'},
+ {n:'巴沙鱼柳',g:'250g',kc:230,p:33,how:'解冻擦干，半勺油小火每面煎3分钟，挤几滴柠檬汁'},
+ {n:'瘦牛肉',g:'120g',kc:160,p:24,how:'切丝+半勺生抽+半勺淀粉抓匀，大火快炒2分钟'},
+ {n:'去皮鸡腿肉',g:'150g',kc:180,p:26,how:'切块+半勺生抽腌10分钟，煎或炒8分钟至熟透'},
+ {n:'豆干',g:'150g',kc:225,p:24,how:'切条，和青椒/芹菜/蒜苗同炒3分钟'},
+ {n:'北豆腐',g:'300g',kc:280,p:25,how:'切块半勺油煎两面黄，加生抽+一点蚝油焖2分钟'}
+],
+sta:[
+ {n:'米饭（熟）',g:'200g',kc:232,p:5,how:'正常煮，一次煮一锅按每餐分量分装冷冻'},
+ {n:'杂粮饭（熟）',g:'200g',kc:225,p:6,how:'白米+一把糙米/小米，电饭煲正常煮'},
+ {n:'全麦面包',g:'2片',kc:180,p:7,how:'直接吃，或烤箱复热1分钟更香'},
+ {n:'燕麦片（干）',g:'60g',kc:228,p:8,how:'热牛奶250ml冲泡3分钟'},
+ {n:'蒸红薯',g:'200g',kc:206,p:2,how:'洗净带皮蒸25分钟，筷子能扎透即熟'},
+ {n:'蒸玉米',g:'1根',kc:180,p:6,how:'带衣冷水下锅，水开再蒸15分钟'},
+ {n:'蒸土豆',g:'200g',kc:166,p:4,how:'削皮切块蒸15~18分钟，撒盐和黑胡椒'}
+],
+veg:[
+ {n:'西兰花',g:'250g',kc:85,p:7,how:'水开烫2分钟捞起，淋半勺生抽+几滴香油'},
+ {n:'菠菜',g:'250g',kc:60,p:4,how:'水开烫30秒（去草酸），蒜末生抽拌'},
+ {n:'番茄',g:'250g',kc:50,p:2,how:'生吃、炒蛋、煮汤都行'},
+ {n:'黄瓜',g:'250g',kc:38,p:2,how:'拍碎+蒜末+生抽+几滴香油凉拌'},
+ {n:'彩椒',g:'250g',kc:63,p:2,how:'切丝，半勺油大火快炒1分钟'},
+ {n:'蘑菇/金针菇',g:'250g',kc:55,p:6,how:'干锅/烤/炒均可，出水后再炒1分钟'},
+ {n:'冬瓜',g:'300g',kc:45,p:2,how:'切块+水+一点生抽煮8分钟'},
+ {n:'油麦菜',g:'300g',kc:68,p:4,how:'蒜蓉爆锅大火快炒1分钟'}
+],
+snack:[
+ {n:'无糖酸奶',g:'150g',kc:85,p:6,how:'选配料表只有"生牛乳+菌种"的'},
+ {n:'香蕉',g:'1根',kc:105,p:1,how:'训练前后吃最好'},
+ {n:'苹果',g:'1个',kc:95,p:0,how:'连皮吃，膳食纤维更多'},
+ {n:'蓝莓',g:'150g',kc:86,p:1,how:'冷冻蓝莓便宜一样好'},
+ {n:'原味坚果',g:'15g',kc:90,p:3,how:'一小把，别买盐焗碳烤的'}
+]};
+var GEN={pro:{},sta:{},veg:{}};
+
 /* ================= 状态 ================= */
 var LS='cutplan_v1';
-function defState(){return{start:'2026-10-05',goal:70,startW:80,log:{},shifts:{},prep:{},noti:false,cfg:{token:'',gist:'',auto:true}}}
+function defState(){return{start:'2026-10-05',goal:70,startW:80,h:175,age:25,log:{},shifts:{},prep:{},cm:{},noti:false,cfg:{token:'',gist:'',auto:true}}}
 var QS=new URLSearchParams(location.search);
 var DEMO=QS.get('demo')==='1';
 var S;
@@ -348,10 +414,11 @@ function slotsFor(dateStr){
   out.push({tm:'睡前',ic:'✅',ti:'过一遍准备清单',bd:'装备买了吗？基线照片拍了吗？动作熟悉了吗？'});
   return out;
  }
+ var cm=S.cm&&S.cm[dateStr];
  out.push({tm:'07:00',ic:'⚖️',ti:'起床 · 空腹称重',bd:'上完厕所、吃任何东西之前',ck:'w'});
  out.push({tm:'07:30',ic:'🌅',ti:'早餐',bd:bf,ck:'d0'});
- out.push({tm:'12:00',ic:'🍚',ti:'午餐',bd:'<b>米饭</b> 200g(熟) ＋ '+menuLine(M.l)+' ＋ <b>蔬菜</b> 250g',ck:'d1'});
- out.push({tm:'15:30',ic:'🥛',ti:'下午加餐',bd:esc(M.snack)+(M.snack.indexOf('练后')===0?'（练完再吃）':''),ck:'d3'});
+ out.push({tm:'12:00',ic:'🍚',ti:'午餐'+(cm?' · 个性化':''),bd:cm?cm.l.items.map(function(x){return '<b>'+esc(x[0])+'</b> '+esc(x[1])}).join(' ＋ '):'<b>米饭</b> 200g(熟) ＋ '+menuLine(M.l)+' ＋ <b>蔬菜</b> 250g',ck:'d1'});
+ out.push({tm:'15:30',ic:'🥛',ti:'下午加餐',bd:cm?cm.s.items.map(function(x){return '<b>'+esc(x[0])+'</b> '+esc(x[1])}).join(' ＋ '):esc(M.snack)+(M.snack.indexOf('练后')===0?'（练完再吃）':''),ck:'d3'});
  var tasks=allTasks(dateStr);
  if(tasks.length===0){
   out.push({tm:'19:00',ic:'🛋',ti:'休息日',bd:'散步、拉伸10分钟，别久坐。'});
@@ -366,7 +433,7 @@ function slotsFor(dateStr){
  if(wd===5){
   out.push({tm:'20:00',ic:'🎉',ti:'晚餐 · 每周自由餐',bd:'今晚吃想吃的，吃到满足、不撑。其他两餐照常，明天不用补偿。',ck:'d2'});
  }else{
-  out.push({tm:'20:30',ic:'🌙',ti:'晚餐',bd:'<b>米饭</b> '+M.rice+'g(熟) ＋ '+menuLine(M.d)+' ＋ <b>蔬菜</b> 300g',ck:'d2'});
+  out.push({tm:'20:30',ic:'🌙',ti:'晚餐'+(cm?' · 个性化':''),bd:cm?cm.d.items.map(function(x){return '<b>'+esc(x[0])+'</b> '+esc(x[1])}).join(' ＋ '):'<b>米饭</b> '+M.rice+'g(熟) ＋ '+menuLine(M.d)+' ＋ <b>蔬菜</b> 300g',ck:'d2'});
  }
  out.push({tm:'21:30',ic:'💧',ti:'喝水收尾 · 今日复盘',bd:'8杯水喝满了吗？步数8000了吗？明天的训练想好几点练了吗？',ck:'wa'});
  if(wd===6)out.push({tm:'21:45',ic:'🗓',ti:'每周仪式（20分钟）',bd:'算周平均 · 量腰围 · 按清单采购 · 备餐1小时',ritual:true});
@@ -486,8 +553,9 @@ function renderToday(){
   h+='<div class="now"><span class="pulse"></span><span>'+slotTip()+'</span></div>';
  }
  /* 今日时间轴 */
- h+='<div class="h2s">📅 今日日程 · 照着时间点做</div>';
+ h+='<div class="h2s" style="display:flex;align-items:center;justify-content:space-between"><span>📅 今日日程 · 照着时间点做</span><button class="btn sec sm" onclick="openGen(\''+d+'\')">🎨 个性化食谱</button></div>';
  h+='<div class="card" style="padding:14px 10px 6px 4px">'+slotsHTML(d,true)+'</div>';
+ h+=customCardHTML(d);
  /* 训练明细（若今天有训练，展开动作表） */
  if(p.week>1&&allTasks(d).length){
   h+='<div class="h2s" id="tcard">💪 今日训练动作明细</div>';
@@ -577,6 +645,23 @@ function scheduleReminders(d){
 
 /* ================= 日历页 ================= */
 var calY,calM;
+function plan26HTML(){
+ var cw=phaseOf(todayStr()).week;
+ var h='<div class="card"><h3>🗺 26周完整计划总览<span class="r">高亮行=当前周</span></h3><div style="max-height:360px;overflow-y:auto"><table><tr><th>周</th><th>阶段</th><th>预计体重</th><th>每天吃</th><th>重点</th></tr>';
+ for(var w=1;w<=26;w++){
+  var nm,kc,fo;
+  if(w===1){nm='准备周';kc='维持2400';fo='建习惯：记录、采购、学动作'}
+  else if(w<=5){nm='适应期';kc='2000';fo='适应缺口，动作学扎实'}
+  else if(w<=17){if(w===13){nm='⚡充电周';kc='2400';fo='吃维持量一周，只练2次轻的'}else{nm='主减期';kc='1950/1850';fo='主力减脂，力量别掉'}}
+  else if(w<=22){nm='冲刺期';kc='1850';fo='收尾冲刺，步数提到10000'}
+  else{nm='巩固期';kc='2350→2450';fo='反向饮食，稳住不反弹'}
+  var pv=(w===26)?'70.0':planWk(w).toFixed(1);
+  var cur=(cw===w)?' style="background:#f0fdfa;font-weight:700"':'';
+  h+='<tr'+cur+'><td><b>'+w+'</b></td><td>'+nm+'</td><td>'+pv+'</td><td>'+kc+'</td><td style="font-size:11.5px">'+fo+'</td></tr>';
+ }
+ h+='</table></div><div class="t2" style="font-size:11.5px;color:var(--faint);margin-top:8px">预计体重按热量平衡推算，允许±0.75kg正常波动；以每4周实测复核和"调整规则"为准。</div></div>';
+ return h;
+}
 function renderCalendar(){
  if(calY===undefined){var t=new Date();calY=t.getFullYear();calM=t.getMonth()}
  var first=new Date(calY,calM,1),days=new Date(calY,calM+1,0).getDate();
@@ -614,6 +699,7 @@ function renderCalendar(){
   h+='<div class="cd'+(ds===todayStr()?' today':'')+(p2.di<0?' off':'')+'" onclick="openDay(\''+ds+'\')">'+d+(L.w?'<div class="w">'+L.w+'</div>':'')+bar+'</div>';
  }
  h+='</div><div class="leg"><span><i style="background:var(--green)"></i>全部完成</span><span><i style="background:#f59e0b"></i>部分完成</span><span><i style="background:#e2e8f0"></i>没打卡</span><span><i style="border:2px solid var(--teal);background:none;width:8px;height:8px"></i>今天</span></div></div>';
+ h+=plan26HTML();
  h+='<div class="card"><h3>🔔 提醒说明</h3><div class="t2" style="font-size:12.5px;color:var(--sub)">程序开着的时候，到点会弹通知提醒吃饭/训练；关掉后打开会立刻告诉你当前该做什么。日常建议：每天早起后打开打卡，把本页添加到手机主屏幕。</div><div class="btnrow">'+(('Notification' in window)?'<button class="btn" onclick="askNoti()">🔔 开启到点提醒</button>':'')+'</div></div>';
  $('app').innerHTML=h;
 }
@@ -644,6 +730,16 @@ function renderTrend(){
  h+='<div class="s"><b>'+(p.week>0?p.week+'周':'--')+'</b><span>当前进行到</span></div>';
  h+='<div class="s"><b>'+(S.goal)+' kg</b><span>目标 · 还差'+Math.max(0,(latest-S.goal)).toFixed(1)+'kg</span></div>';
  h+='</div>';
+ var bmi=latest/Math.pow((S.h||175)/100,2);
+ var bcat=bmi<18.5?'偏瘦':(bmi<24?'正常':(bmi<28?'超重':'肥胖'));
+ var bmr=Math.round(10*latest+6.25*(S.h||175)-5*(S.age||25)+5);
+ var tdee=Math.round(bmr*1.45);
+ h+='<div class="card"><h3>🧮 你的身体数据<span class="r">按 '+(S.h||175)+'cm / '+(S.age||25)+'岁 / 男性 估算（设置页可改）</span></h3><div class="stat">';
+ h+='<div class="s"><b>'+bmi.toFixed(1)+'</b><span>BMI · '+bcat+'</span></div>';
+ h+='<div class="s"><b>'+bmr+'</b><span>基础代谢 (kcal)</span></div>';
+ h+='<div class="s"><b>'+tdee+'</b><span>每日总消耗 (kcal)</span></div>';
+ h+='<div class="s"><b>≈'+(tdee-1900)+'</b><span>每日热量缺口</span></div>';
+ h+='</div><div class="t2" style="font-size:11.5px;color:var(--faint);margin-top:8px">缺口=消耗−摄入。缺口&gt;800容易掉肌肉，&lt;300掉得慢——小程序菜单已把缺口控制在健康区间，你不用操心。</div></div>';
  var fb=feedbackHTML();if(fb)h+=fb;
  h+='</div>';
  h+='<div class="card"><h3>📈 体重曲线<span class="r">实线=你的记录 · 虚线=计划线</span></h3>'+chartHTML()+'</div>';
@@ -689,7 +785,7 @@ function chartHTML(){
 /* ================= 云端同步（GitHub Gist 数据库） ================= */
 function cloudOn(){return !!(S.cfg&&S.cfg.token&&S.cfg.gist)}
 function cHeaders(){return{'Authorization':'token '+S.cfg.token,'Content-Type':'application/json','Accept':'application/vnd.github+json'}}
-function payload(){return{app:'cutplan',ver:2,_t:Date.now(),start:S.start,goal:S.goal,startW:S.startW,log:S.log,shifts:S.shifts,prep:S.prep,_tp:S._tp||0,_ts:S._ts||0}}
+function payload(){return{app:'cutplan',ver:2,_t:Date.now(),start:S.start,goal:S.goal,startW:S.startW,log:S.log,shifts:S.shifts,prep:S.prep,cm:S.cm||{},_tp:S._tp||0,_ts:S._ts||0}}
 function syncStatus(){if(!S.cfg)return'';if(S.cfg.lastSync)return'已连接 · 上次同步 '+new Date(S.cfg.lastSync).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});return'已配置，还没同步过'}
 function mergeStates(local,cloud){
  var out=JSON.parse(JSON.stringify(local)),d,k,q;
@@ -712,6 +808,10 @@ function mergeStates(local,cloud){
   if(!ca.length)delete out.shifts[d];
  }
  for(k in (cloud.prep||{}))if(cloud.prep[k])out.prep[k]=true;
+ if(cloud.cm){
+  out.cm=out.cm||{};
+  for(k in cloud.cm){if(!out.cm[k]||(cloud.cm[k]._t||0)>=(out.cm[k]._t||0))out.cm[k]=cloud.cm[k]}
+ }
  if((cloud._tp||0)>(out._tp||0))out._tp=cloud._tp;
  if((cloud._ts||0)>(out._ts||0))out._ts=cloud._ts;
  if(Object.keys(out.log||{}).length===0){out.start=cloud.start||out.start;out.goal=cloud.goal||out.goal;out.startW=cloud.startW||out.startW}
@@ -791,6 +891,8 @@ function renderSettings(){
  h+='<div class="field"><label>开始日期（第1周从这天起）</label><input type="date" value="'+S.start+'" onchange="S.start=this.value;save();render()"></div>';
  h+='<div class="field"><label>目标体重（kg）</label><input type="number" step="0.1" value="'+S.goal+'" onchange="S.goal=parseFloat(this.value)||70;save()"></div>';
  h+='<div class="field"><label>起始体重（kg，算进度用）</label><input type="number" step="0.1" value="'+S.startW+'" onchange="S.startW=parseFloat(this.value)||80;save()"></div>';
+ h+='<div class="field"><label>身高（cm，算BMI和代谢用）</label><input type="number" step="1" value="'+(S.h||175)+'" onchange="S.h=parseFloat(this.value)||175;save()"></div>';
+ h+='<div class="field"><label>年龄（算基础代谢用）</label><input type="number" step="1" value="'+(S.age||25)+'" onchange="S.age=parseInt(this.value)||25;save()"></div>';
  h+='</div>';
  h+='<div class="card"><h3>🔔 提醒与帮助</h3><div class="t2" style="font-size:12.5px;color:var(--sub)">程序开着时到点弹通知；关掉后打开会立刻告诉你当前该做什么。建议每天早起后打开打卡。</div>';
  h+='<div class="btnrow">'+(('Notification' in window)?'<button class="btn" onclick="askNoti()">🔔 开启到点提醒</button>':'')+'<button class="btn sec" onclick="howto()">📱 手机使用说明</button></div></div>';
@@ -817,14 +919,106 @@ function askNoti(){if(!('Notification' in window)){toast('此浏览器不支持�
 function howto(){openModalHTML('<h3>📱 手机使用说明</h3><div class="t2" style="line-height:1.9;font-size:13px">① 手机浏览器打开网站网址（首次请用部署时给你的"一键配置链接"，会自动完成云端接入）<br>② 浏览器菜单 → <b>添加到主屏幕</b>，之后像App一样点开<br>③ 数据自动云端互通，换设备登录同一份数据<br><br><b>提醒</b>：程序开着时到点弹通知；关掉后打开会立刻告诉你当前该做什么。建议每天早起后固定点开打卡。</div>')}
 function openModalHTML(h){$('msbox').innerHTML='<div class="grab"></div><button class="x" onclick="closeModal()">✕</button>'+h;$('modal').style.display='flex'}
 
+/* ================= 动作库页 ================= */
+var LIBF='全部';
+function renderLib(){
+ var cats=['全部','徒手力量','弹力带','核心','心肺'];
+ var h='<div class="top"><div class="d0">动作库</div><div class="d1">每个动作都教你做</div><div class="d2">步骤 · 要领 · 常见错误 · 呼吸 · 替代方案</div></div>';
+ h+='<div class="card"><div class="tips" style="gap:6px">';
+ cats.forEach(function(c){h+='<span style="cursor:pointer;'+(LIBF===c?'background:var(--teal);color:#fff;border-color:var(--teal)':'')+'" onclick="LIBF=\''+c+'\';renderLib()">'+c+'</span>'});
+ h+='</div></div>';
+ var list=EXLIB.filter(function(x){return LIBF==='全部'||x.cat===LIBF});
+ if(!list.length)h+='<div class="card"><div class="empty">这个分类还没有动作</div></div>';
+ list.forEach(function(x){
+  h+='<div class="card" style="padding:0;overflow:hidden"><details><summary style="cursor:pointer;padding:13px 16px;font-weight:800;font-size:14px;list-style:none;display:flex;align-items:center;justify-content:space-between"><span>'+esc(x.n)+' <span style="font-size:10.5px;color:var(--faint);font-weight:600">'+x.cat+'</span></span><span style="color:var(--amber);font-size:11px;white-space:nowrap">'+'★'.repeat(x.lv)+'<span style="color:#e2e8f0">'+'★'.repeat(3-x.lv)+'</span></span></summary>';
+  h+='<div style="padding:0 16px 14px;border-top:1px dashed var(--line)">';
+  h+='<div class="t2" style="margin:9px 0 2px"><span class="mealtag">目标肌群</span>'+esc(x.m)+'</div>';
+  h+='<div class="t2" style="margin:6px 0 2px"><span class="mealtag">步骤</span></div><div class="how" style="font-size:12.5px;white-space:pre-line">'+esc(x.st)+'</div>';
+  h+='<div class="t2" style="margin:8px 0 2px"><span class="mealtag" style="background:#ccfbf1;color:#0f766e">要领</span><b style="font-size:12.5px">'+esc(x.key)+'</b></div>';
+  h+='<div class="t2" style="margin:6px 0 2px"><span class="mealtag" style="background:#fee2e2;color:#b91c1c">常见错误</span><span style="font-size:12.3px">'+esc(x.err)+'</span></div>';
+  h+='<div class="t2" style="margin:6px 0 2px"><span class="mealtag" style="background:#fef3c7;color:#92400e">呼吸</span><span style="font-size:12.3px">'+esc(x.br)+'</span></div>';
+  h+='<div class="t2" style="margin:6px 0 0"><span class="mealtag" style="background:#e0f2fe;color:#0369a1">替代/进阶</span><span style="font-size:12.3px">'+esc(x.alt)+'</span></div>';
+  h+='</div></details></div>';
+ });
+ $('app').innerHTML=h;
+}
+
+/* ================= 个性化食谱生成器 ================= */
+function openGen(dateStr){
+ GEN={pro:{},sta:{},veg:{}};
+ function picks(cat,arr,defN){
+  var h='<div class="h2s" style="margin:12px 0 6px">'+cat+'（选1~3样）</div><div class="grid2">';
+  arr.forEach(function(x,i){
+   var ck=i<defN?' checked':'';
+   h+='<label class="pbox" style="display:flex;align-items:center;gap:7px;cursor:pointer"><input type="checkbox" style="width:auto;padding:0" '+(ck?'checked':'')+' onchange="genPick(\''+cat+'\',\''+x.n+'\',this.checked)"><span style="flex:1"><b style="display:inline;font-size:12.5px">'+esc(x.n)+'</b> <span style="color:var(--faint);font-size:11px">'+x.g+' · '+x.kc+'kcal'+(x.p?' · 蛋白'+x.p+'g':'')+'</span></span></label>';
+  });
+  return h+'</div>';
+ }
+ var h='<div class="grab"></div><button class="x" onclick="closeModal()">✕</button><h3>🎨 个性化食谱生成器</h3>';
+ h+='<div class="t2" style="font-size:12px;color:var(--sub)">勾选你<b>爱吃、买得到、做得来</b>的食材 → 我按你的减脂目标（≈1900 kcal、蛋白130g）自动配好三餐的克数和做法。早餐是保底套餐固定不变，可换的是午餐、晚餐、加餐。</div>';
+ h+=picks('蛋白质',FOODS.pro,2);
+ h+=picks('主食',FOODS.sta,2);
+ h+=picks('蔬菜',FOODS.veg,2);
+ h+='<div class="h2s" style="margin:12px 0 6px">加餐（默认全选，可去掉）</div><div class="t2" style="font-size:12px;color:var(--faint)">默认：无糖酸奶150g ＋ 香蕉1根（训练日）/ 水果1个（休息日）</div>';
+ h+='<div class="btnrow"><button class="btn full" onclick="doGen(\''+dateStr+'\')">🎲 生成我的专属食谱</button></div>';
+ h+='<div id="genout" style="margin-top:6px"></div>';
+ $('msbox').innerHTML=h;$('modal').style.display='flex';
+}
+function genPick(cat,n,on){if(on)GEN[cat][n]=1;else delete GEN[cat][n]}
+function pickArr(cat){return Object.keys(GEN[cat])}
+function doGen(dateStr){
+ var pro=pickArr('pro'),sta=pickArr('sta'),veg=pickArr('veg');
+ if(!pro.length||!sta.length||!veg.length){toast('蛋白质、主食、蔬菜至少各选一样');return}
+ function shuf(a){var b=a.slice();for(var i=b.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=b[i];b[i]=b[j];b[j]=t}return b}
+ var P=shuf(pro),ST=shuf(sta),V=shuf(veg);
+ var p1=FOODS.pro.filter(function(x){return x.n===P[0]})[0];
+ var p2=FOODS.pro.filter(function(x){return x.n===P[P.length>1?1:0]})[0];
+ var s1=FOODS.sta.filter(function(x){return x.n===ST[0]})[0];
+ var s2=FOODS.sta.filter(function(x){return x.n===ST[ST.length>1?1:0]})[0];
+ var v1=FOODS.veg.filter(function(x){return x.n===V[0]})[0];
+ var v2=FOODS.veg.filter(function(x){return x.n===V[V.length>1?1:0]})[0];
+ var oill=90,oild=90;
+ var lc=p1.kc+s1.kc+v1.kc+oill,lp=p1.p+s1.p+v1.p;
+ var dc=p2.kc+s2.kc+v2.kc+oild,dp=p2.p+s2.p+v2.p;
+ var wd=weekday(dateStr);
+ var sc=190-(wd===0||wd===2||wd===4?20:0);
+ var sc2=85,sc3=(wd===0||wd===2||wd===4)?105:88;
+ var tot=555+lc+dc+sc+sc2, prot=34+lp+dp+6;
+ var mk=function(items,steps){return{items:items,steps:steps}};
+ var c={
+  _t:Date.now(),
+  l:{cal:('午餐 ≈'+lc+' kcal · 蛋白 '+lp+'g'),items:[[p1.n,p1.g],[s1.n,s1.g],[v1.n,v1.g+' ＋ 烹调油半勺'],["烹调油合计",'≤10g']],steps:['● '+p1.n+'：'+p1.how,'● '+s1.n+'：'+s1.how,'● '+v1.n+'：'+v1.how,'● 吃的顺序：先吃蔬菜→再吃肉→最后吃主食，更抗饿']},
+  d:{cal:('晚餐 ≈'+dc+' kcal · 蛋白 '+dp+'g'),items:[[p2.n,p2.g],[s2.n,s2.g],[v2.n,v2.g+' ＋ 烹调油半勺']],steps:['● '+p2.n+'：'+p2.how,'● '+s2.n+'：'+s2.how,'● '+v2.n+'：'+v2.how,'● 19点后如果饿，先喝水，实在饿加1个水煮蛋']},
+  s:{cal:'加餐 ≈'+(sc+sc2)+' kcal',items:[['无糖酸奶','150g'],[wd===0||wd===2||wd===4?'香蕉':'水果（苹果/蓝莓/橙子）',wd===0||wd===2||wd===4?'1根':'1份']],steps:['训练日：练完立刻吃；休息日：下午15:30吃']},
+  kcal:'全天≈'+tot+' kcal · 蛋白≈'+prot+'g（目标1900/130）'+(prot<115?'<br>⚠️ 蛋白偏低：明早加1个蛋，或加1勺蛋白粉':'')
+ };
+ S.cm=S.cm||{};S.cm[dateStr]=c;save();render();closeModal();
+ toast('✓ 个性化食谱已生成并应用到 '+cnDate(dateStr));
+}
+function delCm(d){if(S.cm){delete S.cm[d];save();render();toast('已恢复默认菜单')}}
+function customCardHTML(d){
+ var c=S.cm&&S.cm[d];if(!c)return'';
+ function block(m,ti){
+  if(!m)return'';
+  var it=m.items.map(function(x){return '<div class="t2" style="display:flex;justify-content:space-between"><span>'+esc(x[0])+'</span><b>'+esc(x[1])+'</b></div>'}).join('');
+  var st=m.steps.map(function(s2){return '<div class="how" style="font-size:12px;margin:3px 0">'+esc(s2)+'</div>'}).join('');
+  return '<div class="mc" style="margin-bottom:10px"><h4>'+ti+' · '+m.cal+'</h4>'+it+'<div style="margin-top:7px;padding-top:7px;border-top:1px dashed var(--line)">'+st+'</div></div>';
+ }
+ return '<div class="h2s">🎨 你的个性化食谱（'+cnDate(d)+'）</div><div class="card">'
+  +block(c.l,'午餐')+block(c.d,'晚餐')+block(c.s,'加餐')
+  +'<div class="fb ok" style="margin-top:2px">'+c.kcal+'</div>'
+  +'<div class="btnrow"><button class="btn sec" onclick="delCm(\''+d+'\')">↩ 恢复默认菜单</button><button class="btn sec" onclick="openGen(\''+d+'\')">🎲 换一批</button></div></div>';
+}
+
 /* ================= 框架 ================= */
 var ICONS={
  today:'<path d="M3 11.2 12 4l9 7.2"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5h4v5"/>',
  calendar:'<rect x="3.5" y="5" width="17" height="16" rx="2.5"/><path d="M3.5 10h17M8.5 3v4M15.5 3v4"/>',
+ lib:'<path d="M6.5 7v10M17.5 7v10M3.5 9v6M20.5 9v6M6.5 12h11M2 12h1.5M20.5 12H22"/>',
  trend:'<path d="M4 20h16"/><path d="M6.5 20v-6M11.5 20V9M16.5 20v-9M21 20V5"/>',
  settings:'<path d="M5 7h14M5 12h14M5 17h14"/><circle cx="9" cy="7" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="8" cy="17" r="2"/>'
 };
-var TABS=[['today','今日'],['calendar','日历'],['trend','趋势'],['settings','设置']];
+var TABS=[['today','今日'],['calendar','日历'],['lib','动作库'],['trend','趋势'],['settings','设置']];
 var curTab=QS.get('tab')||'today';
 function renderNav(){
  var h='';TABS.forEach(function(t){h+='<div class="'+(curTab===t[0]?'on':'')+'" onclick="go(\''+t[0]+'\')"><span class="nip"><svg viewBox="0 0 24 24">'+ICONS[t[0]]+'</svg></span>'+t[1]+'</div>'});
@@ -835,6 +1029,7 @@ function render(){
  renderNav();
  if(curTab==='today')renderToday();
  else if(curTab==='calendar')renderCalendar();
+ else if(curTab==='lib')renderLib();
  else if(curTab==='trend')renderTrend();
  else renderSettings();
 }
